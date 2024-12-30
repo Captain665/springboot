@@ -1,4 +1,4 @@
-package common.base;
+package com.example.v1.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

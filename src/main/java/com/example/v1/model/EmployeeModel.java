@@ -1,7 +1,7 @@
-package common.employee;
+package com.example.v1.model;
 
-import common.base.BaseModel;
-import common.enums.Gender;
+import com.example.v1.model.BaseModel;
+import com.example.v1.enums.Gender;
 
 import java.time.LocalDateTime;
 
