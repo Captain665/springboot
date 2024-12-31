@@ -27,10 +27,10 @@ public class EmployeeModel extends BaseModel {
 	private String location;
 	@ManyToOne(targetEntity = CompanyModel.class, fetch = FetchType.EAGER, optional = false)
 	private CompanyModel company;
-	@OneToMany(targetEntity = AssetModel.class, fetch = FetchType.EAGER, mappedBy = "employee")
+	@OneToMany(targetEntity = AssetModel.class, fetch = FetchType.EAGER, mappedBy = "employee", cascade = CascadeType.ALL)
 	@JsonManagedReference
 	private List<AssetModel> assets;
-	@OneToOne(targetEntity = EmployeeSalary.class, fetch = FetchType.EAGER, mappedBy = "employee")
+	@OneToOne(targetEntity = EmployeeSalary.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "employee")
 	@JsonManagedReference
 	private EmployeeSalary salary;
 	@Column(name = "active")
@@ -41,7 +41,7 @@ public class EmployeeModel extends BaseModel {
 	public EmployeeModel() {
 	}
 
-	public EmployeeModel(String fullName, String mobile, String emailId, Gender gender, String joiningDate, String resignDate, String role, String location, CompanyModel company, List<AssetModel> assets, EmployeeSalary salary, Boolean isActive, Boolean isNewUser) {
+	public EmployeeModel(String fullName, String mobile, String emailId, Gender gender, String joiningDate, String resignDate, String role, String location, CompanyModel company, List<AssetModel> assets, EmployeeSalary salary) {
 		this.fullName = fullName;
 		this.mobile = mobile;
 		this.emailId = emailId;
@@ -53,8 +53,6 @@ public class EmployeeModel extends BaseModel {
 		this.company = company;
 		this.assets = assets;
 		this.salary = salary;
-		this.isActive = isActive;
-		this.isNewUser = isNewUser;
 	}
 
 	public String getFullName() {
@@ -172,9 +170,6 @@ public class EmployeeModel extends BaseModel {
 				", resignDate='" + resignDate + '\'' +
 				", role='" + role + '\'' +
 				", location='" + location + '\'' +
-				", company=" + company +
-				", assets=" + assets +
-				", salary=" + salary +
 				", isActive=" + isActive +
 				", isNewUser=" + isNewUser +
 				", id=" + id +
