@@ -1,13 +1,23 @@
 package com.example.v1.model;
 
+import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+@MappedSuperclass
 public abstract class BaseModel implements Serializable {
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id")
 	public Long id;
+	@Column(name = "created_at", updatable = false)
 	public LocalDateTime createdAt;
+	@Column(name = "created_by")
 	public String createdBy;
+	@Column(name = "updated_at")
 	public LocalDateTime updatedAt;
+	@Column(name = "updated_by")
 	public String updatedBy;
 
 
