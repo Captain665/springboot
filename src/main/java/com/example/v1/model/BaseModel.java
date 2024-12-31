@@ -13,7 +13,7 @@ public abstract class BaseModel implements Serializable {
 	public Long id;
 	@Column(name = "created_at", updatable = false)
 	public LocalDateTime createdAt;
-	@Column(name = "created_by")
+	@Column(name = "created_by", updatable = false)
 	public String createdBy;
 	@Column(name = "updated_at")
 	public LocalDateTime updatedAt;
@@ -33,8 +33,12 @@ public abstract class BaseModel implements Serializable {
 		return createdAt;
 	}
 
-	public void setCreatedAt(LocalDateTime createdAt) {
+	@PrePersist
+	public void setCreatedAt() {
 		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+		this.createdBy = "Customer";
+		this.updatedBy = "Customer";
 	}
 
 	public String getCreatedBy() {
@@ -49,8 +53,10 @@ public abstract class BaseModel implements Serializable {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt(LocalDateTime updatedAt) {
+	@PreUpdate
+	public void setUpdatedAt() {
 		this.updatedAt = LocalDateTime.now();
+		this.updatedBy = "Customer";
 	}
 
 	public String getUpdatedBy() {
