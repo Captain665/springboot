@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 
 @Service
 public class CompanyServiceImp {
@@ -34,5 +35,6 @@ public class CompanyServiceImp {
 			return companyResponseResource;
 		}
 		return null;
+
 	}
 }

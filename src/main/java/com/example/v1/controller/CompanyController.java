@@ -16,11 +16,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @RestController
 @RequestMapping("/v1")
 public class CompanyController {
+	private static final ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 	private final CompanyServiceImp service;
 	private final Logger logger = LoggerFactory.getLogger("v1.companyController");
 
@@ -29,19 +32,30 @@ public class CompanyController {
 		this.service = service;
 	}
 
-
 	@GetMapping("/company/{id}/details")
 	public ResponseEntity<ApiResponse> getDetails(@PathVariable Long id) {
 		logger.info("company id : " + id);
-		CompanyResponseResource response = service.getCompanyDetails(id);
-		if (response != null) {
-			logger.info("response : " + response);
-			return new ResponseEntity<>(new ApiSuccess(response), HttpStatus.OK);
-		}
 
-		logger.info("error : " + "company id not found");
-		return new ResponseEntity<>(
-				new ApiFailure("Company id is not found", new ErrorCode("25", "COMPANY_ID", "Incorrect Company id")),
-				HttpStatus.BAD_REQUEST);
+		Future<ResponseEntity<ApiResponse>> future = Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
+			CompanyResponseResource companyResponseResource = service.getCompanyDetails(id);
+			if (companyResponseResource != null) {
+				logger.info("response : " + companyResponseResource);
+				return new ResponseEntity<>(new ApiSuccess(companyResponseResource), HttpStatus.OK);
+			}
+			return new ResponseEntity<>(
+					new ApiFailure("Company id is not found",
+							new ErrorCode("25", "COMPANY_ID", "Incorrect Company id")),
+					HttpStatus.BAD_REQUEST
+			);
+		});
+
+		try {
+			return future.get(); // Correct method to retrieve the result
+		} catch (Exception e) {
+			logger.error("Error processing request", e);
+			return new ResponseEntity<>(new ApiFailure("Internal Server Error", new ErrorCode("500", "SERVER_ERROR", "Unexpected error")), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
+
+
 }
