@@ -23,7 +23,6 @@ import java.util.concurrent.Future;
 @RestController
 @RequestMapping("/v1")
 public class CompanyController {
-	private static final ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 	private final CompanyServiceImp service;
 	private final Logger logger = LoggerFactory.getLogger("v1.companyController");
 

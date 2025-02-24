@@ -13,10 +13,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 @RestController
 @RequestMapping("/v1")
 public class EmployeeController {
 
+	private static final ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 	private final EmployeeService service;
 	private final Logger logger = LoggerFactory.getLogger("v1.employee.controller");
 
@@ -28,16 +33,24 @@ public class EmployeeController {
 	@PostMapping("/employee")
 	public ResponseEntity<ApiResponse> create(@RequestBody EmployeeResource resource) {
 		logger.info(" json : " + resource);
-		EmployeeResource response = service.createOrUpdate(resource);
-		if (response == null) {
-			logger.info("Incorrect company id");
-			return new ResponseEntity<>(
-					new ApiFailure("Incorrect company id",
-							new ErrorCode("error", "COMPANY_ID", "Incorrect company id")),
-					HttpStatus.OK);
+		Future<ResponseEntity<ApiResponse>> future = Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
+			EmployeeResource response = service.createOrUpdate(resource);
+			if (response == null) {
+				logger.info("Incorrect company id");
+				return new ResponseEntity<>(
+						new ApiFailure("Incorrect company id",
+								new ErrorCode("error", "COMPANY_ID", "Incorrect company id")),
+						HttpStatus.OK);
+			}
+			logger.info(" response : " + response);
+			return new ResponseEntity<>(new ApiSuccess(response), HttpStatus.OK);
+		});
+		try {
+			return future.get();
+		} catch (Exception e) {
+			logger.error("Error processing request", e);
+			return new ResponseEntity<>(new ApiFailure("Internal Server Error", new ErrorCode("500", "SERVER_ERROR", "Unexpected error")), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		logger.info(" response : " + response);
-		return new ResponseEntity<>(new ApiSuccess(response), HttpStatus.OK);
 	}
 
 }
